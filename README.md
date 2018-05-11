@@ -27,7 +27,7 @@ the Raspberry Pi.
 # How to run it
 To build and install (locally with a prefix under `./bulid/prefix`):
 
-    ./make-dependencies.sh
+	./make-dependencies.sh
 	pushd build
 	cmake -DCMAKE_INSTALL_PREFIX=${PWD}/prefix ..
 	make install

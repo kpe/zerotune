@@ -17,7 +17,7 @@ install(TARGETS zerotune zerotune-static
         DESTINATION lib)
 
 add_executable(zerotune-test zerotune-test.c)
-target_link_libraries(zerotune-test zerotune asound m)
+target_link_libraries(zerotune-test zerotune-static asound m)
 install(TARGETS zerotune-test DESTINATION bin)
 
 # Install header
