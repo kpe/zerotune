@@ -53,9 +53,3 @@ add_custom_target(install-${PROJECT_NAME}
 
 # Walk through subdirectories
 add_subdirectory(src)
-
-
-
-
-
-
