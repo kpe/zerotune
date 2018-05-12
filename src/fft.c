@@ -25,8 +25,6 @@ void* fft_alloc(int frame_size, int is_inverse) {
   int mb;
   struct GPU_FFT *fft;
 
-  fprintf(stderr,".");
-  
   if(frame_size != 2048) {
     fprintf(stderr, "unexpected FFT size: %d\n", frame_size);
     exit(1);
