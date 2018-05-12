@@ -25,14 +25,23 @@ but this could be later optimized by using the [GPU_FFT] for
 the Raspberry Pi.
 
 # How to run it
+First make sure you have CMake 3.2+ and the ALSA dev libs:
+
+    sudo apt-get install cmake libasound2-dev
+
 To build and install (locally with a prefix under `./bulid/prefix`):
 
 	./make-dependencies.sh
-	pushd build
+	cd build
 	cmake -DCMAKE_INSTALL_PREFIX=${PWD}/prefix ..
 	make install
-	popd
+
+*N.B.* You might want to
+
+    sudo apt-get install libssl-dev
 	
+before doing `./make-dependencies.sh` on the Zero Pi, as compliling openssl from sources would take quite some time.
+
 To check if it works:	
 
 	export LD_LIBRARY_PATH=${PWD}/prefix/lib/:${LD_LIBRARY_PATH}

@@ -18,8 +18,8 @@ set(DEPENDENCY_VERSIONS "${RAWRTC_VERSION}")
 
 # Debug build type as default
 if (NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type selected, using DEBUG")
-    set(CMAKE_BUILD_TYPE "DEBUG")
+    message(STATUS "No build type selected, using RELEASE")
+    set(CMAKE_BUILD_TYPE "RELEASE")
 endif ()
 
 # Use pkg-config
