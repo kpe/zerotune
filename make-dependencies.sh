@@ -43,12 +43,12 @@ pkg-config --atleast-version=${RAWRTC_VERSION} rawrtc || have_rawrtc=false
 if [ "$have_rawrtc" = false ]; then
     echo "\n\n============================"
     echo "Building RawRTC Dependencies"
-    pushd ${DEPS_DIR}/rawrtc
+    cd ${DEPS_DIR}/rawrtc
     ${DEPS_DIR}/rawrtc/make-dependencies.sh
     echo "\n\n==============="
     echo "Building RawRTC"
     mkdir -p ${DEPS_DIR}/rawrtc
-    pushd ${DEPS_DIR}/rawrtc
+    cd ${DEPS_DIR}/rawrtc
     cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} ${DEPS_DIR}/rawrtc
     make install
 fi

@@ -21,23 +21,32 @@ The WSNAC implementation uses currently multiple FFTs
 of size 2048 for processing an audio frame captured 
 every 1024/48kHz seconds. 
 Using the [kiss_fft] on the Zero Pi needs less than 40% CPU,
-but this could be later optimized by using the [GPU_FFT] for
-the Raspberry Pi.
+and with [GPU_FFT] it comes down to 18% CPU.
 
 # How to run it
+First make sure you have CMake 3.2+ and the ALSA dev libs:
+
+    sudo apt-get install cmake libasound2-dev
+
 To build and install (locally with a prefix under `./bulid/prefix`):
 
 	./make-dependencies.sh
-	pushd build
+	cd build
 	cmake -DCMAKE_INSTALL_PREFIX=${PWD}/prefix ..
 	make install
-	popd
+
+*N.B.* You might want to
+
+    sudo apt-get install libssl-dev
 	
+before doing `./make-dependencies.sh` on the Zero Pi, as compliling openssl from sources would take quite some time.
+
 To check if it works:	
 
 	export LD_LIBRARY_PATH=${PWD}/prefix/lib/:${LD_LIBRARY_PATH}
 	./build/prefix/bin/zerotune-test hw:1,0
-	
+
+*N.B.* When using [GPU_FFT] you might have to run it with sudo.
 	
 
 # References
