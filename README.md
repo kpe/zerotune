@@ -30,7 +30,7 @@ First make sure you have CMake 3.2+ and the ALSA dev libs:
 
 To build and install (locally with a prefix under `./bulid/prefix`):
 
-	./make-dependencies.sh
+	export PKG_CONFIG_PATH=${PWD}/build/prefix/lib/pkgconfig
 	cd build
 	cmake -DCMAKE_INSTALL_PREFIX=${PWD}/prefix ..
 	make install
