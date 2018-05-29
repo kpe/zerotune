@@ -20,6 +20,8 @@ typedef struct {
     complex_float* fft_out_b;
 
     complex_float* fft_tmp;
+    
+    complex_float* wsnac_tmp;
 
     float* window;
 }wsnac_handle;
@@ -34,17 +36,18 @@ void* wsnac_open(int frame_size) {
     wsnac->fft  = fft_alloc(frame_size<<1, 0);
     wsnac->ifft = fft_alloc(frame_size<<1, 1);
     
-    wsnac->fft_in  = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
+    wsnac->fft_in    = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
     wsnac->fft_in_a  = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
     wsnac->fft_in_b  = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
 
-    wsnac->fft_out = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
+    wsnac->fft_out   = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
     wsnac->fft_out_a = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
     wsnac->fft_out_b = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
 
-    wsnac->fft_tmp = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
+    wsnac->fft_tmp   = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
+    wsnac->wsnac_tmp = (complex_float*)calloc(frame_size<<1, sizeof(complex_float));
 
-    wsnac->window  = (float*)calloc(frame_size, sizeof(float));
+    wsnac->window    = (float*)calloc(frame_size, sizeof(float));
 
     for(i=0;i<frame_size;i++) {
         wsnac->window[i] = sin(PI * i/(wsnac->frame_size-1));
@@ -64,6 +67,7 @@ void wsnac_close(void *wsnac_h) {
     free(wsnac->fft_out_b);
 
     free(wsnac->fft_tmp);
+    free(wsnac->wsnac_tmp);
 
     free(wsnac->window);
 
@@ -95,6 +99,7 @@ void wsnac_autocorr(const wsnac_handle *wsnac) {
     // to real only - clean imag
     for(i=0; i< wsnac->frame_size; i++) {
         wsnac->fft_out[i].i = 0;
+//        wsnac->fft_out[i].r /= wsnac->frame_size<<1;
     }
 }
 
@@ -127,6 +132,7 @@ void wsnac_crosscorr(const wsnac_handle *wsnac) {
     // to real only - clean imag
     for(i=0; i< wsnac->frame_size; i++) {
         wsnac->fft_out[i].i = 0;
+//        wsnac->fft_out[i].r /= wsnac->frame_size<<1;
     }
 }
 
@@ -137,6 +143,7 @@ void wsnac_crosscorr(const wsnac_handle *wsnac) {
 void wsnac_wsnac(wsnac_handle *wsnac) {
     int i;
     float x;
+    complex_float *tmp;
 
     // in = x*w; in_a = in; in_b = x*x*w
     for(i=0; i< (wsnac->frame_size<<1); i++){
@@ -159,26 +166,26 @@ void wsnac_wsnac(wsnac_handle *wsnac) {
         wsnac->fft_in[i].i = 0;
     }
 
-    wsnac_crosscorr(wsnac);                                      // (in_a, in_b) -> out
-    FFT_SWAP(wsnac->fft_out_a, wsnac->fft_out, wsnac->fft_tmp);  // out <-> out_a
-    FFT_SWAP(wsnac->fft_in_b, wsnac->fft_in_a, wsnac->fft_tmp);  // in_a <-> in_b
-    wsnac_crosscorr(wsnac);                                      // (in_a, in_b) -> out
-    FFT_SWAP(wsnac->fft_out_b, wsnac->fft_out, wsnac->fft_tmp);  // out <-> out_b
+    wsnac_crosscorr(wsnac);                           // (in_a, in_b) -> out
+	memcpy(wsnac->wsnac_tmp, wsnac->fft_out, wsnac->frame_size*sizeof(complex_float));
+        
+    FFT_SWAP(wsnac->fft_in_b, wsnac->fft_in_a, tmp);  // in_a <-> in_b
+    wsnac_crosscorr(wsnac);                           // (in_a, in_b) -> out
+    for(i=0;i<wsnac->frame_size;i++) {
+		wsnac->wsnac_tmp[i].r += wsnac->fft_out[i].r;
+	}
 
-    wsnac_autocorr(wsnac);                      // in -> out
+    wsnac_autocorr(wsnac);                            // in -> out
 
     for(i=0;i<wsnac->frame_size;i++){
-        x = wsnac->fft_out_a[i].r + wsnac->fft_out_b[i].r;
+        x = wsnac->wsnac_tmp[i].r;
         if (x>0 && x < 1e-12) {
             x = 1e-12;
         } else if(x<0 && (-x) < 1e-12)  {
             x = -1e-12;
         }
         wsnac->fft_out[i].r = 2*wsnac->fft_out[i].r/x;
-
-        //        fprintf(stdout, "%.7f\n", wsnac->fft_out[i].r);
     }
-    //exit(1);
 }
 
 // calcs fft_in -> f0 and clarity

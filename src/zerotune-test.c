@@ -36,23 +36,6 @@ void samps_to_float(const short* buf, int samps, int channels, float* out) {
 unsigned long gpos = 0;
 unsigned long grate = 0;
 
-void capture_read_t(void* p, short* buf, int size) {
-    int i;
-    double freq = 440/4;
-    
-    for(i=0;i<size;i++){
-        buf[i]  = 0.5* sin(2*3.1415926 *1*freq*((double)gpos/grate)) * 32768;
-        buf[i] += 0.30* sin(2*3.1415926*2*freq*((double)gpos/grate)) * 32768;
-        buf[i] += 0.35* sin(2*3.1415926*3*freq*((double)gpos/grate)) * 32768;
-        buf[i] += 0.35* sin(2*3.1415926*4*freq*((double)gpos/grate)) * 32768;
-        //buf[i] += 0.30* sin(2*3.1415926*5*freq*((double)gpos/grate)) * 32768;
-        buf[i] += 0.25* sin(2*3.1415926*6*freq*((double)gpos/grate)) * 32768;
-        buf[i] += 0.20* sin(2*3.1415926*7*freq*((double)gpos/grate)) * 32768;
-        
-        gpos += 1;
-        //fprintf(stdout,"%d\n",buf[i]);
-    }
-}
 
 const char* NOTE_NAMES[12]={"A","A#","B","C","C#","D","D#","E","F","F#","G","G#"};
 
@@ -96,12 +79,7 @@ int main(int argc, char* argv[]) {
 
 	t = clock();
 
-        //fprintf(stdout, "buf %d %d %d %d %d %d %d %d \n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
-
         samps_to_float(buf, FRAME_SIZE, chan, samps);
-
-        //fprintf(stdout, " capt %.3f %.3f %.3f %.3f \n", samps[0], samps[1], samps[2], samps[3]);
-
         
         wsnac_f0_and_clarity(wsnac, samps, rate, &f0, &clar);
 
