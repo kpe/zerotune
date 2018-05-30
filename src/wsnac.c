@@ -191,14 +191,19 @@ void wsnac_wsnac(wsnac_handle *wsnac) {
 // calcs fft_in -> f0 and clarity
 void wsnac_f0_and_clarity(void *wsnac_h, const float *in, int rate, float *f0, float *clarity) {
     //const float thresh = 0.3;
-    const float slope_thresh_pos = 0.8;
-    const float slope_thresh_neg = -0.7;
+    const float slope_thresh_pos =  0.8;
+    const float slope_thresh_neg = -0.1;
     
-    int i;
+    int i, imax, amax;
     double x0,x1,x2, y0,y1,y2, a,b,c ,xx;
-    int above;
-    int pos,lpos,amax,xmax;
-    float x, vmax;
+
+    int above = 0;
+    int pos=1;
+    float vmax=0;
+    float x=0;
+
+    int lpos;
+    
     wsnac_handle *wsnac = (wsnac_handle *)wsnac_h;
 
     for(i = 0; i< wsnac->frame_size; i++){
@@ -208,11 +213,9 @@ void wsnac_f0_and_clarity(void *wsnac_h, const float *in, int rate, float *f0, f
     
     wsnac_wsnac(wsnac); // in -> out
 
-    above = 0;
     pos = 1;   // positive
     amax = 0;
-    vmax = 0;
-    xmax = 0;
+    imax = 0;
     for(i=0; i<wsnac->frame_size;i++){
         lpos = pos;
         x = wsnac->fft_out[i].r;
@@ -228,30 +231,25 @@ void wsnac_f0_and_clarity(void *wsnac_h, const float *in, int rate, float *f0, f
         
         if(i<3) continue; // ignore first few samples
 
-        x = wsnac->fft_out[i].r;
+        if (pos && !lpos) {          // positive slope
+            above = 1;
+        }
         if(above) {
             if(x>vmax) {
-                amax = i;
+                imax = i;
                 vmax = x;
             }
             if(lpos && !pos) {       // negative slope
                 above = 0;
-                xmax = amax;
+                amax = imax;
                 break;
-                //if (vmax > thresh)
-                //  break; // returning xmax as maximum
             }
-        } else if( pos && !lpos ){  // positive slope
-            above = 1;
-            amax = i;
-            vmax = x;
-        }
-        
+        }        
     }
 
     
     // no peak found
-    if ((xmax < 4) || (xmax > (wsnac->frame_size*1/3))) {
+    if ((amax < 4) || (amax > (wsnac->frame_size /3))) {
         *f0 = 0;
         *clarity = 0;
         return;
@@ -261,12 +259,12 @@ void wsnac_f0_and_clarity(void *wsnac_h, const float *in, int rate, float *f0, f
 
     // xmax -> freq
     
-    x0 = xmax-1;
-    x1 = xmax;
-    x2 = xmax+1;
-    y0 = wsnac->fft_out[xmax-1].r;
-    y1 = wsnac->fft_out[xmax].r;
-    y2 = wsnac->fft_out[xmax+1].r;
+    x0 = amax-1;
+    x1 = amax;
+    x2 = amax+1;
+    y0 = wsnac->fft_out[amax-1].r;
+    y1 = wsnac->fft_out[amax].r;
+    y2 = wsnac->fft_out[amax+1].r;
     
     // fit parabola a*x*x + b*x +c
     /*
