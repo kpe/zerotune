@@ -204,10 +204,17 @@ void wsnac_f0_and_clarity(void *wsnac_h, const float *in, int rate, float *f0, f
 
     int lpos;
     
+    float mean = 0;
+
     wsnac_handle *wsnac = (wsnac_handle *)wsnac_h;
 
+    for(i = 0; i< wsnac->frame_size; i++) {
+    	mean += in[i];
+    }
+    mean = mean/wsnac->frame_size;
+
     for(i = 0; i< wsnac->frame_size; i++){
-        wsnac->fft_in[i].r = in[i];
+        wsnac->fft_in[i].r = in[i] - mean;
         wsnac->fft_in[i].i = 0;
     }
     
