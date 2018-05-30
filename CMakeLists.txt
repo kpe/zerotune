@@ -11,9 +11,6 @@ set(PROJECT_URL
 
 set(ENV{PKG_CONFIG_PATH} "{CMAKE_INSTALL_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 
-set(LIB_RAWRTC_VERSION "librawrtc >= 0.2.2")
-
-set(DEPENDENCY_VERSIONS "${RAWRTC_VERSION}")
 
 
 # Debug build type as default
@@ -28,9 +25,7 @@ find_package(PkgConfig REQUIRED)
 # Dependency list
 set(zerotune_DEP_LIBRARIES)
 
-# Dependency: librew
-pkg_check_modules(LIB_RAWRTC REQUIRED ${LIB_RAWRTC_VERISON})
-include_directories(${LIB_RAWRTC_INCLUDE_DIRS})
+
 link_directories(${LIB_RAWRTC_LIBRARY_DIRS})
 list(APPEND zerotune_DEP_LIBRARIES ${LIB_RAWRTC_LIBRARIES})
 

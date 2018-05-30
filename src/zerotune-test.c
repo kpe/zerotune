@@ -64,7 +64,8 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "no capture device specified; try something like: %s hw:1,0\n", argv[0]);
         exit(1);
     }
-    
+
+    fprintf(stdout, "      opening: %s\n", argv[1]); fflush(stdout);
     capture_handle = capture_open(argv[1], &rate, &chan, &period_size);
     fprintf(stdout, "sampling rate: %d\n", rate);
     fprintf(stdout, "       format: S16_LE\n");
@@ -95,8 +96,7 @@ int main(int argc, char* argv[]) {
 		(int)(4+floor((9+tone)/12)),
                 (toneA440-tone)*100
 		);
-
-	    //fflush(stdout);
+	    fflush(stdout);
 
 	    double time_taken = ((double)ct-t)/CLOCKS_PER_SEC; // in seconds
 /*
