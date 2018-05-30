@@ -86,12 +86,12 @@ int main(int argc, char* argv[]) {
 
 	ct = clock();
 
-        if (f0 > 170 && clar > 1.5) {
+        if (f0 > 140 && clar > 0.9) {
 
-            toneA440 = 12*log(f0/440.)/log(2);
+		toneA440 = 12*log(f0/440.)/log(2);
 	    tone = round(toneA440);
 
-            fprintf(stdout, " %6.1f Hz at %4.2f %-2s%1d % 3.0f cents \n", f0, clar, 
+		fprintf(stdout, " %6.1f Hz at %4.2f %-2s%1d % 3.0f cents \n", f0, clar, 
 		NOTE_NAMES[(8*12+tone)%12],
 		(int)(4+floor((9+tone)/12)),
                 (toneA440-tone)*100
